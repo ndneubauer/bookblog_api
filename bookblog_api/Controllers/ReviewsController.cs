@@ -30,5 +30,14 @@ namespace bookblog_api.Controllers
                 Data = Get().Value.Data?.FirstOrDefault(r => r.ReviewId == id) ?? new ReviewSummary()
             };
         }
+
+        [HttpGet("featured")]
+        public ActionResult<ResponseList<FeaturedReview>> GetFeatured()
+        {
+            return new ResponseList<FeaturedReview>
+            {
+                Data = Get().Value.Data?.Select(r => new FeaturedReview(r.ReviewId, r.BookTitle, r.BookAuthor, r.ImageUrl)).ToList() ?? new List<FeaturedReview>()
+            };
+        }
     }
 }

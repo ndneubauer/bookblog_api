@@ -31,4 +31,27 @@
             Summary = summary;
         }
     }
+
+    public class FeaturedReview
+    {
+        public int ReviewId { get; set; }
+
+        public string BookTitle { get; set; }
+
+        public string BookAuthor { get; set; }
+
+        public string ImageUrl { get; set; }
+
+        public FeaturedReview()
+        {
+        }
+
+        public FeaturedReview(int reviewId, string bookTitle, string bookAuthor, string imageUrl)
+        {
+            ReviewId = reviewId;
+            BookTitle = bookTitle;
+            BookAuthor = bookAuthor;
+            ImageUrl = imageUrl;
+        }
+    }
 }
