@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using IdentityServer4.Models;
 
 namespace bookblog_api
@@ -35,11 +34,6 @@ namespace bookblog_api
                     AllowedScopes = { "api" }
                 }
             };
-        }
-
-        public static IEnumerable<IdentityResource> GetIdentityResources()
-        {
-            return new IdentityResource[] {new IdentityResources.OpenId()};
         }
     }
 }

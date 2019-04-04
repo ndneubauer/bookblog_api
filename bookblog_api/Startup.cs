@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,24 +15,27 @@ namespace bookblog_api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc();
+
+            services.AddMvcCore()
+               .AddAuthorization()
+               .AddJsonFormatters();
+
             services.AddIdentityServer()
-                .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                .AddInMemoryApiResources(Config.GetApis())
-                .AddInMemoryClients(Config.GetClients());
+                .AddDeveloperSigningCredential()
+                .AddInMemoryClients(Config.GetClients())
+                .AddInMemoryApiResources(Config.GetApis());
 
-            services.AddMvcCore().AddAuthorization().AddJsonFormatters();
-            services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
-            {
-                options.Authority = "https://api.bookblog.com";
-                options.RequireHttpsMetadata = false;
-                options.Audience = "api";
-            });
+            services.AddAuthentication("Bearer")
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.Authority = "http://api.bookblog.com";
+                    options.RequireHttpsMetadata = false;
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddCors();
+                    options.ApiName = "api";
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,16 +47,21 @@ namespace bookblog_api
             }
             else
             {
-                app.UseHsts();
+                app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseStaticFiles();
+
             app.UseIdentityServer();
+
             app.UseAuthentication();
 
-            app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().WithExposedHeaders("x-custom-header"));
-
-            app.UseHttpsRedirection();
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
